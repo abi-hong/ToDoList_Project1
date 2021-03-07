@@ -6,7 +6,7 @@ const jwt = require('jsonwebtoken');
 
 //유저 스키마를 만든다!
 const userSchema = mongoose.Schema({
-    nickName: {
+    Name: {
         type: String,
         minlength: 2,
         maxlength: 10,
@@ -14,7 +14,7 @@ const userSchema = mongoose.Schema({
         trim: true,
         unique: 1
     },
-    id: {
+    ID: {
         type: String,
         trim: true,
         minlength: 5,
@@ -22,7 +22,7 @@ const userSchema = mongoose.Schema({
         required: true,
         unique: 1
     },
-    password: {
+    Password: {
         type: String,
         minlength: 5,
         required: true
@@ -32,7 +32,9 @@ const userSchema = mongoose.Schema({
         type: Number,
         default: 0
     },
-    image: String,
+    image: {
+        type: String
+    },
     token: {
         //토큰을 할당해서 유효성을 검사할 수 있다.
         type: String
@@ -45,7 +47,7 @@ const userSchema = mongoose.Schema({
 
 userSchema.pre('save', function(next){
     var user = this;
-    if(user.isModified('password')) { //비밀번호가 변경될 때만 bcrypt를 이용해서 암호화하도록 설정한다.
+    if(user.isModified('Password')) { //비밀번호가 변경될 때만 bcrypt를 이용해서 암호화하도록 설정한다.
         
         //비밀번호를 암호화 시킨다.
         bcrypt.genSalt(saltRounds, function(err, salt) {
@@ -53,7 +55,7 @@ userSchema.pre('save', function(next){
 
             bcrypt.hash(user.password, salt, function(err, hash) {
                 if(err) return next(err);
-                user.password = hash;
+                user.Password = hash;
                 next();
             });
         });
@@ -65,7 +67,7 @@ userSchema.pre('save', function(next){
 userSchema.methods.comparePassword = function(plainPassword, cb) {
     //plainPassword 1234567와  암호화된 비밀번호가 같은지 체크해야 한다.
     //띠리서 plainPassword를 암호화한 후 DB에 있는 비번과 비교해야 한다.
-    bcrypt.compare(plainPassword, this.password, function(err, isMatch) {
+    bcrypt.compare(plainPassword, this.Password, function(err, isMatch) {
         if(err) return cb(err)
         cb(null, isMatch)
     })
