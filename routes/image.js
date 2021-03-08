@@ -46,14 +46,4 @@ router.post("/uploadfiles", auth, (req, res) => {
     })
 });
 
-
-router.post("/thumbnail", auth, (req, res) => {
-    //썸네일 생성
-    gm("uploads/")
-    .thumb(100, 100, "uploads/thunmbnails/", function(err) {
-        if(err) console.error(err);
-        else console.log('done-thumb');
-    })
-});
-
 module.exports = router;
