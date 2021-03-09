@@ -24,6 +24,7 @@ mongoose
 
 app.use("/api/users", require("./routes/users"));
 app.use("/api/users", require("./routes/image"));
+app.use("/api/list", require("./routes/list"));
 
 app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`);
