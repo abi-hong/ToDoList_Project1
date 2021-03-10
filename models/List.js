@@ -11,11 +11,14 @@ const listSchema = mongoose.Schema({
         required: true
     },
     content:[
-        new mongoose.Schema({
-        toDO: String,
-        date: { type: Date, default: Date.now },
-        private: { type: Boolean, default: true },
-        })
+        new mongoose.Schema(
+            {
+                toDo: String,
+                date: { type: String, required: true },
+                private: { type: Boolean, default: true },
+                done: { type: Boolean, default: false },
+            }, { _id: false } //한 아이디에 여러개의 list이기 때문에 false 작성
+        )
     ]
 });
 
