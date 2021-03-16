@@ -66,4 +66,11 @@ router.get("/logout", auth, (req, res) => {
     );
 });
 
+//이달의 목표 저장 route
+router.post("/saveGoal", (req, res) => {
+    User.find({
+        
+    })
+})
+
 module.exports = router;

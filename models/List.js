@@ -1,26 +1,30 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose"); // 모듈 가져오기
 const Schema = mongoose.Schema;
 
 const listSchema = mongoose.Schema({
     writer: {
-        type: Schema.Types.ObjectId, //User모델에서 모든 정보를 가져온다.
-        ref: 'User'
+        type: Schema.Types.ObjectId,
+        ref: "User",
     },
     category: {
         type: String,
-        required: true
+        required: true,
     },
-    content:[
+    todos: [
         new mongoose.Schema(
-            {
-                toDo: String,
-                date: { type: String, required: true },
-                private: { type: Boolean, default: true },
-                done: { type: Boolean, default: false },
-            }, { _id: false } //한 아이디에 여러개의 list이기 때문에 false 작성
-        )
-    ]
+        {
+            id: Number,
+            text: String,
+            year: { type: Number, required: true },
+            month: { type: Number, required: true },
+            today: { type: Number, required: true },
+            private: { type: Boolean, default: true },
+            checked: { type: Boolean, default: false },
+        },
+        { _id: false }
+        ),
+    ],
 });
 
-const List = mongoose.model('List', listSchema);
+const List = mongoose.model("List", listSchema);
 module.exports = { List };
