@@ -46,4 +46,22 @@ router.post("/uploadfiles", auth, (req, res) => {
     })
 });
 
+router.post("/uploadfiles", upload, (req, res) => {
+    upload(req, res, (err) => {
+        if (err) return res.json({ success: false, err });
+        User.findOneAndUpdate(
+        { _id: req.user._id },
+        { image: res.req.file.path },
+        (err, user) => {
+            if (err) return res.json({ success: false, err });
+            return res.status(200).send({
+            success: true,
+            filePath: res.req.file.path,
+            fileName: res.req.file.filename,
+            });
+        }
+        );
+    })
+});
+
 module.exports = router;

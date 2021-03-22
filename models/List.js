@@ -13,12 +13,12 @@ const listSchema = mongoose.Schema({
     todos: [
         new mongoose.Schema(
         {
-            id: Number,
+            id: Number, //리스트 별 id(배열의 인덱스)를 나타냄, client에서 구분하기 쉽도록
             text: String,
             year: { type: Number, required: true },
             month: { type: Number, required: true },
             today: { type: Number, required: true },
-            private: { type: Boolean, default: true },
+            privated: { type: Boolean, default: true },
             checked: { type: Boolean, default: false },
         },
         { _id: false }

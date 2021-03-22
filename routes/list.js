@@ -3,24 +3,25 @@ const router = express.Router();
 const { List } = require("../models/List");
 
 //리스크 저장 router
+// client에서 post 요청할 때 writer 정보(User)를 함께 보내줘야 함
 router.post("/saveList", (req, res) => {
     const list = new List(req.body);
-
-
-    //list에 할 일 저장
-    List.findOneAndUpdate(
-        { writer: req.body.writer, category: req.body.category },
-        { $push: { todos: req.body.todos } },
-        (err, info) => {
-        if (!info) { //todos가 처음 저장되는거면
-            list.save((err, listInfo) => {
-                if (err) return res.json({ success: false, err });
-            });
-            return res.json({ success: true, list });
+    List.findOneAndDelete(
+        {
+            writer: req.body.writer,
+            category: req.body.category,
+            "todos.year": req.body.year,
+            "todos.month": req.body.month,
+            "todos.today": req.body.today
         }
-        return res.status(200).json({ success: true, info });
-        }
-    );
+    ).exec()
+    .then((info) => {
+        if(req.body.todos.length !== 0)
+        //추가!!
+    })
+    .catch((err) => {
+        res.status(400).send(err);
+    })
 });
 
 //리스트를 DB에서 가져와서 client로 보내기
@@ -30,25 +31,49 @@ router.get("/getList", (req, res) => {
         {
             writer: req.body.writer,
             category: req.body.category,
-            //날짜 관련해서 코드 작성
+            "todos.year": req.body.year,
+            "todos.month": req.body.month,
+            "todos.today": req.body.today,
         }
-    ).exec((err, list) => {
-        if(err) return res.status(400).send(err);
-        for(i = list.todos.length - 1; i >= 0; i--) {
-            if(list.todos[i].today !== req.body.today) {
-                list.todos.splice(i, 1);
-            }
-        }
-        res.status(200).json({ 
+    ).exec()
+    .then((list) => {
+        if(!list)
+            return res.json({ success: true, list });
+    })
+    .then((list) => {
+        return res.status(200).json({
             success: true,
-            //listCount는 writer, category, date로 찾은 todos 안의 배열 개수
-            listCount: list.todos.length,
-            list
-        });
+            listCount: list.todos.length, //listCount는 writer, category, date로 찾은 todos 안의 배열 개수
+            list,
+        })
+    })
+    .catch((err) => {
+        res.status(400).send(err);
     });
 });
 
-//오늘의 달성률 --> client로 total과 done 개수 보내기
+//달성률(오늘, 이달) --> client로 total과 done 개수 보내기
+router.post("/getSuccess", (req, res) => {
+    let todayTotal = 0;
+    let todayDone = 0;
+    let monthTotal = 0;
+    let monthDone = 0;
+    
+    List.find({
+        writer: req.body.writer,
+        "todos.year": req.body.year,
+        "todos.month": req.body.month
+    })
+    .exec()
+    .then((list) => {
+        
+    })
+    .catch((err) => {
+        res.status(400).send(err);
+    });
+});
+
+
 router.get("/getTodaySuccess", (req, res) => {
     let total = 0;
     let done = 0;
