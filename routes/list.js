@@ -16,28 +16,34 @@ router.post("/saveList", (req, res) => {
         }
     ).exec()
     .then((info) => {
+        //빈 배열로 남아있지 않게 조건 넣어줌
         if(req.body.todos.length !== 0)
-        //추가!!
+        {
+            list.save((err, listInfo) => {
+                if(err) return res.json({ success: false, err });
+            });
+            //다시 생각해보기
+            return res.json({ success: true, listInfo });
+        }
     })
     .catch((err) => {
         res.status(400).send(err);
-    })
+    });
 });
 
 //리스트를 DB에서 가져와서 client로 보내기
-router.get("/getList", (req, res) => {
+router.post("/getList", (req, res) => {
     //client에서 writer, category, date 정보 전달해주어야 함
     List.findOne(
-        {
-            writer: req.body.writer,
-            category: req.body.category,
-            "todos.year": req.body.year,
-            "todos.month": req.body.month,
-            "todos.today": req.body.today,
-        }
-    ).exec()
+    {
+        writer: req.body.writer,
+        category: req.body.category,
+        "todos.year": req.body.year,
+        "todos.month": req.body.month,
+        "todos.today": req.body.today,
+    }).exec()
     .then((list) => {
-        if(!list)
+        if(!list) //작성된 리스트가 없더라도 화면 상에 뜨기 위해
             return res.json({ success: true, list });
     })
     .then((list) => {
@@ -66,7 +72,22 @@ router.post("/getSuccess", (req, res) => {
     })
     .exec()
     .then((list) => {
-        
+        for(i = 0; i < list.length; i++) {
+            for(j = 0; j < list[i].todos.length; j++) {
+                if(list[i].todos[j].checked === true) monthDone++;
+                if(list[i].todos[j].today === req.body.today) {
+                    todayTotal++;
+                    if(list[i].todos[j].checked === true) todayDone++;
+                }
+            }
+        }
+        return res.status(200).json({
+            success: true,
+            todayTotal,
+            todayDone,
+            monthTotal,
+            monthDate
+        });
     })
     .catch((err) => {
         res.status(400).send(err);
@@ -74,68 +95,6 @@ router.post("/getSuccess", (req, res) => {
 });
 
 
-router.get("/getTodaySuccess", (req, res) => {
-    let total = 0;
-    let done = 0;
-    List.find({
-        writer: req.body.writer,
-        todos: {
-            $elemMatch:{
-                year: req.body.year,
-                month: req.body.month,
-                today: req.body.today
-            }
-        }
-    })
-    .exec()
-    .then((list) => {
-        for(i = 0; i < list.length; i++) {
-            total += list[i].todos.length;
-            for(j = 0; j < list[i].todos.length; j++) {
-                if(list[i].todos[j].checked === true) done += 1;
-            }
-        }
-        res.status(200).json({
-            success: true,
-            total,
-            done
-        });
-    })
-    .catch((err) => {
-        res.status(400).send(err);
-    })
-})
 
-//이달의 달성률
-router.get("/getMonthSuccess", (req, res) => {
-    let total = 0;
-    let done = 0;
-    List.find({
-        writer: req.body.writer,
-        todos: {
-            $elemMatch: {
-                year: req.body.year,
-                month: req.body.month
-            }
-        }
-    })
-    .exec()
-    .then((list) => {
-        for (i = 0; i < list.length; i++) {
-            total += list[i].todos.length;
-            for(j = 0; j < list[i].todos.length; j++) {
-                if(list[i].todos[j].checked === true) done += 1;
-            }
-        }
-        res.status(200).json({
-            success: true,
-            total,
-            done
-        });
-    })
-    .catch((err) => {
-        res.status(400).send(err);
-    })
-})
 
 module.exports = router; 
